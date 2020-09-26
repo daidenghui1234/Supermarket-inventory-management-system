@@ -24,11 +24,17 @@ int main()
 	}
 	cout << "hello mysql!" << endl;
 
-	char rSql[256] = { 0 };
-	//
+	// 设置字符格式
+	char rSql[256] = {0};
+	strcpy_s(rSql, "set names gbk");
+	if (mysql_query(mysql, rSql) != 0) {
+		cout << "1插入错误" << endl;
+		exit(1);
+	}
+	// 插入数据
 	strcpy_s(rSql,"INSERT INTO aa VALUE(10,'代')");
 	if (mysql_query(mysql, rSql) != 0) {
-		cout << "插入错误" << endl;
+		cout << "2插入错误" << endl;
 		exit(1);
 	}
 
