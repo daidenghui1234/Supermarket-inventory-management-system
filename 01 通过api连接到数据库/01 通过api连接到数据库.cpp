@@ -1,19 +1,41 @@
 #include "mysql.h"
 #include <iostream>
-
+#include <iomanip>
 #define _HOST_ "127.0.0.1"
 #define _USER_ "root"  //数据库用户
 #define _PASSWD_ "123456"
 #define _DBNAME_ "mydb1"
 
 using namespace std;
-
+void show_result(MYSQL_RES * result){
+	MYSQL_ROW row;
+	if (result != NULL) {
+		// 取字段个数
+		int num_fileds = mysql_num_fields(result);
+		// 需要打印结果集
+		// 打印表头
+		MYSQL_FIELD * fieldes;
+		fieldes = mysql_fetch_fields(result);
+		for (int i = 0; i < num_fileds; i++) {
+			cout << setw(5) << fieldes[i].name << "  ";
+		}
+		cout << endl;
+		cout << "*************************************************************" << endl;
+		// 循环取一行
+		while ((row = mysql_fetch_row(result)) != NULL) {
+			for (int i = 0; i < num_fileds; i++) {
+				cout << setw(5) << (row[i] ? row[i] : "NULL") << "  ";
+			}
+			cout << endl;
+		}
+	}
+}
 // 插入数据到数据库
 void inster_data() {
 	//1. init 
 	MYSQL* mysql = mysql_init(NULL);
 	if (mysql == NULL) {
-		cout << "init err" << endl;
+		cout << "数据库连接成功!" << endl;
 		exit(1);
 	}
 	//2. real_connect
@@ -33,7 +55,7 @@ void inster_data() {
 		exit(1);
 	}
 	// 插入数据
-	strcpy_s(rSql, "INSERT INTO emp VALUE(5,'代',1,'2018-08-27',20000,'2020-07-05','一个大傻逼')");
+	strcpy_s(rSql, "INSERT INTO emp VALUE(6,'代',1,'2018-08-27',20000,'2020-07-05','一个大傻逼')");
 	if (mysql_query(mysql, rSql) != 0) {
 		cout << "2插入错误" << endl;
 		exit(1);
@@ -59,7 +81,7 @@ void get_data() {
 		cout << "connect err" << endl;
 		exit(1);
 	}
-	cout << "hello mysql!" << endl;
+	cout << "数据库连接成功!" << endl;
 
 
 	// 命令
@@ -77,23 +99,13 @@ void get_data() {
 	}
 	// 取回结果集
 	MYSQL_RES * result = mysql_store_result(mysql);
-	MYSQL_ROW row;
-	int i = 0;
-	if (result != NULL) {
-		// 需要打印结果集
-		// 循环取一行
-		while ((row = mysql_fetch_row(result)) != NULL ) {
-			for (i = 0; i < 7; i++) {
-				cout << row[i] << " ";
-			}
-			cout << endl;
-		}
-		// 释放结果集
-		mysql_free_result(result);
-	}
+	show_result(result);
+	// 释放结果集
+	mysql_free_result(result);
 	//3. close
 	mysql_close(mysql);
 }
+
 int main()
 {
 	//inster_data();
