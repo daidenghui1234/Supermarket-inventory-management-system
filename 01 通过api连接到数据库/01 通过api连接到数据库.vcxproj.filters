@@ -18,5 +18,8 @@
     <ClCompile Include="01 通过api连接到数据库.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="02 数据库客户机的实现.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -106,9 +106,67 @@ void get_data() {
 	mysql_close(mysql);
 }
 
+
+// 得到数据库的数据
+void client() {
+	//1. init 
+	MYSQL* mysql = mysql_init(NULL);
+	if (mysql == NULL) {
+		cout << "init err" << endl;
+		exit(1);
+	}
+	//2. real_connect
+	mysql = mysql_real_connect(mysql, _HOST_, _USER_, _PASSWD_, _DBNAME_, 0, NULL, 0);
+
+	if (mysql == NULL) {
+		cout << "connect err" << endl;
+		exit(1);
+	}
+	cout << "数据库连接成功!" << endl;
+
+
+	// 命令
+	char rSql[1024] = { 0 };
+	// 设置编码格式
+	strcpy_s(rSql, "set names gbk");
+	if (mysql_query(mysql, rSql) != 0) {
+		cout << "设置字符格式失败" << endl;
+		exit(1);
+	}
+	while (1) {
+		cout << "yoursql>";
+		memset(rSql, 0x00, sizeof(rSql));
+		cin.getline(rSql, 1024);
+		if (strncmp(rSql, "quit", 4) == 0) {
+			cout << "Bey" << endl;
+			break;
+		}
+		if (mysql_query(mysql, rSql) != 0) {
+			cout << "命令出错" << endl;
+			continue;
+		}
+		// 取回结果集
+		MYSQL_RES * result = mysql_store_result(mysql);
+		if (result != NULL)
+		{
+			// 打印结果集
+			show_result(result);
+			// 释放结果集
+			mysql_free_result(result);
+		}
+		else
+		{
+			cout << "7 rows in set (0.00 sec)" << endl;
+		}
+	}
+
+	//3. close
+	mysql_close(mysql);
+}
 int main()
 {
 	//inster_data();
-	get_data();
+	//get_data();
+	client();
 	return 0;
 }
