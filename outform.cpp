@@ -133,9 +133,8 @@ void OutForm::on_pushButton_refresh_clicked()
     initTable();
     QString sname = ui->comboBox->currentText();
     QString catename = ui->comboBox_2->currentText();
-    QString cname = ui->lineEdit->text();
     qDebug() << sname << "   " << catename;
-    std::vector<Goods> *Slist = sql.getGoodsOut2(cname,sname,catename);
+    std::vector<Goods> *Slist = sql.getGoodsOut(sname,catename);
     int i = 0;
     for(std::vector<Goods>::iterator it=(*Slist).begin();it!=(*Slist).end();it++){
         /*setItem设置条目栏中的一个格子的信息*/

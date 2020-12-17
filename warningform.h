@@ -20,6 +20,7 @@ class WarningForm : public QWidget
 public:
     explicit WarningForm(QWidget *parent = 0);
     ~WarningForm();
+
     void initDataBase();
 
 private slots:
@@ -46,6 +47,13 @@ private:
     std::vector<Goods> getlackgoods();
     std::vector<Goods> getnimietygoods();
 
+    void outgood(int Iid,int num, int uid);
+
+    void deletegoods();
+    void deleteExpiringgoods();
+    void deletelackgoods();
+    void deletenimietygoods();
+
     void Overdue(); // 过期
     void Expiring(); // 将过期
     void lack(); // 缺少
@@ -56,12 +64,12 @@ private:
     bool iflack();
     bool ifnimiety();
 
-
     Flag f;
 
 
     QTimer *m_timer;
     void myTimeer();
+    void flash();
 signals:
     void myWarning();
 };

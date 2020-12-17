@@ -20,8 +20,7 @@ WarningForm::WarningForm(QWidget *parent) :
     this->setWindowFlags(Qt::Window|Qt::WindowTitleHint);
     initDataBase();
     inittable();
-    on_pushButton_refresh_clicked();
-
+    flash();
     m_timer = new QTimer(this);
     connect(m_timer,&QTimer::timeout,this,&WarningForm::myTimeer);
     m_timer->start(1000*60); //every 1 minutes
@@ -83,7 +82,7 @@ std::vector<Goods> WarningForm::getlackgoods()
     query.exec(QString("SELECT * from goods WHERE goods.[SUM] <  minnum"));
     while (query.next()) {
         Goods good;
-        initGoodgoods(good,query);//设置商品属性
+        initGoodgoods(good,query);  //设置商品属性
         goodlist.push_back(good);
     }
     return goodlist;
@@ -100,6 +99,41 @@ std::vector<Goods> WarningForm::getnimietygoods()
         goodlist.push_back(good);
     }
     return goodlist;
+}
+
+void WarningForm::outgood(int Iid, int num, int uid)
+{
+    QSqlQuery query;
+    QString tmp = QString("select cid,price from [in] where iid = %1").arg(Iid);
+    query.exec(tmp);
+    query.next();
+    int cid = query.value(0).toInt();
+    float price = query.value(1).toFloat();
+    QString tmpout = QString("INSERT INTO [dbo].[out]( [cid], [price], [time], [num], [uid], [weight]) VALUES "
+                           "(%1, %2,GETDATE(), %3, %4, 0)")
+            .arg(cid).arg(price).arg(num).arg(uid);
+    query.exec(tmpout);
+}
+
+void WarningForm::deletegoods()
+{
+    // 添加出库信息
+    QSqlQuery query;
+    query.exec(QString("SELECT * from goodsin where shelftime < GETDATE()"));
+    while (query.next()) {
+        Goods good;
+        initGoods(good,query);//设置商品属性
+        outgood(good.getCid(),good.getNum(),good.getUid());
+    }
+    // 删除入库信息
+    query.exec(QString("delete from [in] where shelftime < GETDATE()"));
+
+}
+
+void WarningForm::deleteExpiringgoods()
+{
+    QSqlQuery query;
+    query.exec(QString("delete from [in] where shelftime < GETDATE()+30"));
 }
 
 void WarningForm::inittable()
@@ -269,12 +303,16 @@ bool WarningForm::ifnimiety()
     return !query.value(1).toString().isEmpty();
 }
 
+
 void WarningForm::myTimeer()
 {
+    flash();
+    ui->pushButton_refresh->setText("刷新");
     static int i = 0;
     switch (i%4) {
     case 0:
     {
+        ui->pushButton_refresh->setText("一键处理");
         qDebug() << ifOverdue() << "  " <<1;
         if(ifOverdue()){
             this->f = OVER;
@@ -313,16 +351,55 @@ void WarningForm::myTimeer()
     default:
         break;
     }
-    on_pushButton_refresh_clicked();
+
     qDebug() << i;
     i++;
+    switch (this->f) {
+    case Flag::OVER:
+        Overdue();
+        break;
+    case Flag::EXPI:
+        Expiring();
+        break;
+    case Flag::LACK:
+        lack();
+        break;
+    case Flag::NIMI:
+        nimiety();
+        break;
+    default:
+        break;
+    }
+}
+
+void WarningForm::flash()
+{
+    switch (this->f) {
+    case Flag::OVER:
+        Overdue();
+        break;
+    case Flag::EXPI:
+        Expiring();
+        break;
+    case Flag::LACK:
+        lack();
+        break;
+    case Flag::NIMI:
+        nimiety();
+        break;
+    default:
+        break;
+    }
 }
 
 void WarningForm::on_pushButton_refresh_clicked()
 {
     switch (this->f) {
     case Flag::OVER:
+        deletegoods();
         Overdue();
+        QMessageBox::warning(nullptr, "提示", "处理完成");
+        this->hide();
         break;
     case Flag::EXPI:
         Expiring();

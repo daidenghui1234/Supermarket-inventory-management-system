@@ -420,40 +420,6 @@ std::vector<Goods> *Mysql::getGoodsOut(const QString name, const QString categor
     return list;
 }
 
-std::vector<Goods> *Mysql::getGoodsOut2(const QString cname, const QString sname, const QString category)
-{
-    std::vector<Goods> *list = new std::vector<Goods>;
-    QSqlQuery query;
-    QString a = QString("SELECT * from goodsin "
-                        "where sname like '%%1%' "
-                        "and category like '%%2%'"
-                        "and cname like '%%3%'"
-                        "order by shelftime asc").arg(sname).arg(category).arg(cname);
-    query.exec(QString("SELECT * from goodsin "
-                       "where sname like '%%1%' "
-                       "and category like '%%2%'"
-                       "and cname like '%%3%'"
-                       "order by shelftime")
-               .arg(sname).arg(category).arg(cname));
-    qDebug() << a;
-    while (query.next()) {
-        Goods good;
-        good.setCid(query.value(0).toInt());
-        good.setCname(query.value(1).toString());
-        good.setNum(query.value(7).toInt());
-        good.setCategory(query.value(3).toString());
-        good.setSnmae(query.value(2).toString());
-        good.setMinnum(query.value(11).toInt());
-        good.setMaxnum(query.value(12).toInt());
-        good.setShelftime(query.value(6).toDateTime());
-        good.setTime(query.value(5).toDateTime());
-        good.setPrice(query.value(4).toFloat());
-        list->push_back(good);
-    }
-    return list;
-}
-
-
 // 视图查询
 int Mysql::getGoodCid(const QString supplier, const QString category, const QString cname)
 {

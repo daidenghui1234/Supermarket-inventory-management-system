@@ -55,7 +55,6 @@ public:
     std::vector<Goods>* getGoods(const QString name,const QString category);
 
     std::vector<Goods>* getGoodsOut(const QString name,const QString category);
-    std::vector<Goods>* getGoodsOut2(const QString cname,const QString sname,const QString category);
 
 
     int getGoodCid(const QString supplier,
