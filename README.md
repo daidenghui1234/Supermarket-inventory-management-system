@@ -1,2 +1,2 @@
-＃超市库存管理系
+# 超市库存管理系
 使用QT开发，SQLserver数据库配置ODBC数据源：QSQLServer
